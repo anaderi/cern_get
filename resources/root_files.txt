@@ -1,0 +1,1 @@
+root://eospublic.cern.ch//eos/opendata/cms/Run2010B/MinimumBias/AOD/Apr21ReReco-v1/0000/008A07E5-1771-E011-AC8F-001A92971B62.root
