@@ -38,25 +38,33 @@ void print_measurement(const time_point_t started_at, const Long64_t entries_cou
 }
 
 int main(int argc, char *argv[]) {
-    if (argc != 3) {
-        cout << "cern_get INPUT_FILE OUTPUT_FILE" << endl;
+    if (argc != 4) {
+        cout << "cern_get INPUT_FILE CONFIG_FILE OUTPUT_FILE" << endl;
         return 0;
     }
 
     cout << "Processing " << argv[1] << "..." << endl;
-    ifstream file(argv[1]);
+    ifstream input_file(argv[1]);
     TChain *chain = new TChain("Events");
 
-    string root_file_name;
-    while (getline(file, root_file_name)) {
-        cout << "Append file: " << root_file_name << endl;
-        chain->Add(root_file_name.c_str());
+    string buffer;
+    while (getline(input_file, buffer)) {
+        cout << "Append file: " << buffer << endl;
+        chain->Add(buffer.c_str());
     }
 
-    cout << "Select branches... ";
+    cout << "Select branches... " << endl;
+    ifstream config_file(argv[2]);
+    vector<string> branches;
+    while (getline(config_file, buffer)) {
+        branches.push_back(buffer);
+    }
 
     chain->SetBranchStatus("*", 0);
-    chain->SetBranchStatus("recoCaloJets_ak5CaloJets__RECO.obj.mass_", 1);
+    for (vector<string>::iterator it = branches.begin(); it != branches.end(); it++) {
+        chain->SetBranchStatus(it->c_str(), 1);
+        cout << *it << " - ok" << endl;
+    }
 
     chain->SetCacheSize(1024 * 1024 * 50); // IT'S BEAUTIFUL MAGIC OF SPEED UP!
 
@@ -69,7 +77,7 @@ int main(int argc, char *argv[]) {
 
     cout << entries_count << " entries." << endl;
 
-    ofstream csv_out(argv[2]);
+    ofstream csv_out(argv[3]);
 
     cout << "Retrieving data:"  << endl;
     cout.flush();
@@ -81,7 +89,11 @@ int main(int argc, char *argv[]) {
 
         // working with data
         chain->GetEntry(entry_number);
-        csv_out << chain->GetLeaf("recoCaloJets_ak5CaloJets__RECO.obj.mass_")->GetValue() << "\n";
+
+        for (vector<string>::iterator it = branches.begin(); it != branches.end(); it++) {
+            csv_out << chain->GetBranch(it->c_str())->GetLeaf(it->c_str())->GetValue() << " ";
+        }
+        csv_out << endl;
     }
 
     print_measurement(started_at, entries_count, entries_count);
