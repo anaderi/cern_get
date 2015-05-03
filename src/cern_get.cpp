@@ -17,28 +17,34 @@ void print_measurement(const time_point_t started_at, const Long64_t entries_cou
     time_point_t current_time = chrono::steady_clock::now();
     double elapsed      = chrono::duration<double>(current_time - started_at).count();
     double per_entry    = elapsed / current_entry_number;
-    int estimated       = int(per_entry * entries_count);
-
-    int estimated_seconds   = estimated % 60;
-    int estimated_minutes   = (estimated / 60) % 60;
-    int estimated_hours     = estimated / 60 / 60;
+    int remaining       = int(per_entry * (entries_count - current_entry_number));
 
     int elapsed_i         = int(elapsed);
     int elapsed_seconds   = elapsed_i % 60;
     int elapsed_minutes   = (elapsed_i / 60) % 60;
     int elapsed_hours     = elapsed_i / 60 / 60;
 
+    int remaining_seconds   = remaining % 60;
+    int remaining_minutes   = (remaining / 60) % 60;
+    int remaining_hours     = remaining / 60 / 60;
+
     cout    << current_entry_number << " / " << entries_count << " |   "
-            << "Elapsed: " << elapsed_hours << "h. " << elapsed_minutes << "m. " << elapsed_seconds << "sec. / "
-            << "Per entry: " << per_entry << " sec. / "
-            << "Estimation: " << estimated_hours << "h. " << estimated_minutes << "m. " << estimated_seconds << "sec. "
+            << "Elapsed: "   << elapsed_hours << "h " << elapsed_minutes << "m " << elapsed_seconds << "sec / "
+            << "Per entry: " << per_entry << " sec / "
+            << "Remaining: " << remaining_hours << "h " << remaining_minutes << "m " << remaining_seconds << "sec "
             << endl;
 
     cout.flush();
 }
 
 int main(int argc, char *argv[]) {
-    ifstream file("resources/root_files.txt");
+    if (argc != 3) {
+        cout << "cern_get INPUT_FILE OUTPUT_FILE" << endl;
+        return 0;
+    }
+
+    cout << "Processing " << argv[1] << "..." << endl;
+    ifstream file(argv[1]);
     TChain *chain = new TChain("Events");
 
     string root_file_name;
@@ -56,11 +62,14 @@ int main(int argc, char *argv[]) {
 
     cout << "done." << endl;
 
+    cout << "Calculating entries count... " << endl;
+    cout.flush();
+
     Long64_t entries_count = chain->GetEntries();
 
     cout << entries_count << " entries." << endl;
 
-    ofstream csv_out("resources/data.csv");
+    ofstream csv_out(argv[2]);
 
     cout << "Retrieving data:"  << endl;
     cout.flush();

@@ -10,7 +10,7 @@ link_directories(${ROOT_LIBRARY_DIR})
 include_directories(BEFORE ${CORE_INC_DIR} ${ROOT_INCLUDE_DIR})
 
 set(SOURCE_FILES
-    source/data_download.cpp)
+    src/cern_get.cpp)
 
-add_executable(data_download ${SOURCE_FILES})
-target_link_libraries(data_download ${ROOT_LIBRARIES})
+add_executable(cern_get ${SOURCE_FILES})
+target_link_libraries(cern_get ${ROOT_LIBRARIES})
