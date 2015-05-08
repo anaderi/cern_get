@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 project(data_download)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 list(APPEND CMAKE_MODULE_PATH $ENV{ROOTSYS}/etc/root/cmake)
+list(APPEND CMAKE_MODULE_PATH $ENV{ROOTSYS}/share/root/cmake)
 
 find_package(ROOT REQUIRED)
 
